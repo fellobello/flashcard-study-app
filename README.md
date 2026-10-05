@@ -2,6 +2,8 @@
 
 A free, offline flashcard study app built with plain HTML, CSS and JavaScript. You can run your own deck from a CSV file, quiz yourself four different ways, and track what you know. It has no install, no account and no dependencies.
 
+**[Try it live →](https://fellobello.github.io/flashcard-study-app/)**
+
 ![Study Desk start screen](docs/screenshot.png)
 
 ## Features
