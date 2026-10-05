@@ -31,17 +31,24 @@ It comes with a sample deck of 242 cards on distributed systems, multithreading,
 
 ## Making your own deck
 
-Replace the rows in `cards.csv`:
+The app ships with a 242-card sample deck in `cards.csv`, so it works the moment you open it. To use your own cards:
 
-| Column | Notes |
-|---|---|
-| `section` | One per card, e.g. `M1 - Architecture & design`. |
-| `tags` | Any number, separated by `;`, e.g. `code; java`. |
-| `title` | The term. It also identifies the card in saved progress. |
-| `info` | The definition. Wrap code in backticks. |
-| `example` | Optional. |
+1. **Start from the template.** Copy `cards-template.csv` (3 example cards) or open `cards.csv`, and edit it in Google Sheets, Excel, Numbers or any text editor.
+2. **Fill in one row per card:**
 
-`cards-builtin.js` is a copy of the CSV that lets the app work when you open it as a file. `server.py` regenerates it on every start.
+   | Column | Required | Notes |
+   |---|---|---|
+   | `section` | yes | One per card, written as a short code, a dash, then a name: `U1 - Basics`, `CH3 - Cell biology`. The code shows in compact spots like the progress bars. |
+   | `tags` | no | Any number, separated by `;`: `vocab; formula`. Each tag becomes a deck you can study. |
+   | `title` | yes | The term or question. Titles must be unique; they also identify the card in saved progress. |
+   | `info` | yes | The definition or answer. Wrap code in backticks: `` `x * 2` ``. |
+   | `example` | no | Shown on the back of the card. |
+
+3. **Save it as `cards.csv`** in this folder, replacing the sample deck. Export as CSV in UTF-8: Google Sheets **File → Download → CSV**, Excel **CSV UTF-8**, Numbers **File → Export To → CSV**.
+4. **Restart the app.** With `server.py`, just reload the page; the server also refreshes `cards-builtin.js`, the copy used when `index.html` is opened directly. On GitHub Pages, commit the new `cards.csv`.
+5. **Start fresh (optional).** Delete `progress.json`, or use **Clear progress** in the app, to drop marks and scores from the old deck.
+
+You can also add or remove tags inside the app (Browse all cards → **+ tag**) and save them back with **Write tags into cards.csv**.
 
 ## Choosing cards
 
@@ -68,7 +75,8 @@ The result is **(selected items, overlapped) + added − subtracted**. The line 
 index.html               page structure
 styles.css               tokens → base → primitives → components
 app.js                   card loading, saving, picker, game modes
-cards.csv                the deck
+cards.csv                the deck (242-card sample)
+cards-template.csv       3-card starting point for your own deck
 cards-builtin.js         generated copy of cards.csv
 server.py                optional local server that writes progress.json
 Open Flashcards.command  macOS launcher for server.py
