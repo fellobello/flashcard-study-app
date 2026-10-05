@@ -1,0 +1,8 @@
+# personal save data and backups
+progress.json
+*.tmp
+cards.backup.csv
+
+# system / Python
+.DS_Store
+__pycache__/

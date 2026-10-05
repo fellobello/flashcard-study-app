@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Study Desk · Flashcard Study App</title>
+<meta name="description" content="A free, offline flashcard study app with four quiz games, tags, CSV decks, progress tracking and a pomodoro timer. Plain HTML, CSS and JavaScript.">
+<meta property="og:title" content="Study Desk · Flashcard Study App">
+<meta property="og:description" content="Flashcards, multiple choice, matching and speed rounds from a CSV deck. No install, no account.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#d6d0c4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">Study Desk</div>
+    <button class="pill" id="pomoPill" hidden aria-label="Pause or resume the focus timer"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="11.5" r="7" fill="var(--tomato)"/><path d="M10 5c-1.5-3-4.5-2.6-5.5-1 2 .9 3.7 1.3 5.5 1zM10 5c1.5-3 4.5-2.6 5.5-1-2 .9-3.7 1.3-5.5 1z" fill="var(--matcha)"/></svg><span id="pomoPillTime">25:00</span></button>
+  </header>
+
+  <!-- ===== MENU ===== -->
+  <section id="menu">
+    <div class="hero">
+      <h1>Study desk</h1>
+      <p id="heroSub">Loading cards…</p>
+    </div>
+
+    <div class="label" style="--c:var(--m1)">Mode</div>
+    <div class="sheet modes" id="modes" role="group" aria-label="Game mode"></div>
+
+    <div class="menu">
+      <div class="stack" style="--gap:var(--s5)">
+        <details class="fold" data-key="diff" open>
+          <summary class="label" style="--c:var(--m4)">Difficulty <span class="sumval" id="sumDiff"></span></summary>
+          <div class="seg" id="diffs" role="group" aria-label="Difficulty"></div>
+          <p class="blurb" id="blurb"></p>
+        </details>
+        <details class="fold" data-key="pick" open>
+          <summary class="label" style="--c:var(--m6)">Sections &amp; tags <span class="sumval" id="sumPick"></span></summary>
+          <p class="blurb" style="margin:0 0 10px"><b>Click a name</b> to select it: only cards that are in every selected item. <b>+</b> adds cards, <b>−</b> subtracts them.</p>
+          <div class="stack" id="decks" role="group" aria-label="Choose sections and tags"></div>
+          <p class="picksum" id="pickSummary"></p>
+        </details>
+        <details class="fold" data-key="show" open>
+          <summary class="label" style="--c:var(--m5)">Which of those cards <span class="sumval" id="sumShow"></span></summary>
+          <div class="seg" id="shows" role="group" aria-label="Which cards in the deck"></div>
+          <p class="blurb" id="poolNote"></p>
+        </details>
+        <details class="fold" data-key="len" id="lenBlock" open>
+          <summary class="label" style="--c:var(--m3)">Cards per game <span class="sumval" id="sumLen"></span></summary>
+          <div class="seg" id="lens" role="group" aria-label="Cards per game"></div>
+        </details>
+        <div><button class="btn btn--primary btn--lg" id="start">Start studying</button></div>
+        <details class="fold" data-key="preview" id="previewBox">
+          <summary class="label" style="--c:var(--m2)">Cards you'll study <span class="sumval" id="sumPreview"></span></summary>
+          <p class="blurb" id="previewNote" style="margin:0 0 10px"></p>
+          <div class="panel preview" id="preview"></div>
+        </details>
+      </div>
+
+      <aside class="stack" style="--gap:var(--s5)">
+        <div class="panel stack pomo" id="pomo" data-kind="focus">
+          <span class="tape tape--corner" style="--c:var(--sakura)"></span>
+          <h2><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="11.5" r="7" fill="var(--tomato)"/><path d="M10 5c-1.5-3-4.5-2.6-5.5-1 2 .9 3.7 1.3 5.5 1zM10 5c1.5-3 4.5-2.6 5.5-1-2 .9-3.7 1.3-5.5 1z" fill="var(--matcha)"/></svg>Focus timer</h2>
+          <div class="seg" id="pomoKinds" role="group" aria-label="Timer length"></div>
+          <div class="ring">
+            <svg viewBox="0 0 160 160" aria-hidden="true">
+              <circle class="track" cx="80" cy="86" r="62"/>
+              <circle class="prog" id="pomoProg" cx="80" cy="86" r="62" transform="rotate(-90 80 86)"/>
+              <path class="stem" d="M80 26V12"/>
+              <path class="leaf" d="M80 25C72 14 61 15 57 21c8 3 15 5 23 4zM80 25c8-11 19-10 23-4-8 3-15 5-23 4z"/>
+            </svg>
+            <div class="ring-text"><b id="pomoTime">25:00</b><small id="pomoKindLabel">focus</small></div>
+          </div>
+          <div class="cluster" style="justify-content:center"><button class="btn btn--primary" id="pomoGo">Start</button><button class="btn" id="pomoReset">Reset</button></div>
+          <p class="small center">Keeps running while you play. Chimes softly when time's up.</p>
+        </div>
+
+        <div class="panel stack">
+          <span class="tape tape--corner" style="--c:var(--m5)"></span>
+          <h2>Your progress</h2>
+          <div class="nums" id="nums"></div>
+          <div class="meter" id="meter"><i style="--c:var(--matcha)"></i><i style="--c:var(--tomato)"></i></div>
+          <div class="stack" id="modbars" style="--gap:6px"></div>
+          <table class="best" id="best"></table>
+          <p class="savestate" id="saveState"></p>
+          <div class="cluster" style="--gap:6px 14px">
+            <button class="linkish" id="copySave">Copy save data</button>
+            <button class="linkish" id="loadSaveBtn">Load save data</button>
+            <button class="linkish" id="resetBest">Reset best scores</button>
+            <button class="linkish" id="resetBtn">Clear progress</button>
+          </div>
+          <div class="stack" id="loadBox" hidden style="--gap:var(--s2)">
+            <textarea class="field" id="loadText" placeholder="Paste save data here" aria-label="Save data to load"></textarea>
+            <div class="cluster"><button class="btn" id="loadGo">Load</button><button class="btn" id="loadCancel">Cancel</button></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ===== CARD BROWSER ===== -->
+    <details class="panel browse" id="browse">
+      <summary id="browseSum">Browse all cards</summary>
+      <div class="cluster" style="justify-content:space-between;margin:4px 0 8px;--gap:10px">
+        <input class="field" id="search" type="search" placeholder="Search terms and definitions" aria-label="Search cards">
+        <button class="btn" id="copy">Copy all for Quizlet / Anki</button>
+      </div>
+      <textarea class="field" id="copybox" hidden readonly aria-label="Tab-separated cards"></textarea>
+      <details class="fold tagmgr" id="tagBox" data-key="tags" open>
+        <summary><h3>Tags</h3><span class="n" id="tagCount"></span></summary>
+        <div class="stack" style="--gap:var(--s2)">
+          <p class="small">A tag is just a word you attach to cards. Every tag becomes a deck you can study and a tab below. Add tags to a card with its “+ tag” menu.</p>
+          <div class="cluster" id="allTags" style="--gap:6px"></div>
+          <div class="cluster">
+            <input class="field" id="newTags" type="text" placeholder="New tags, separated by commas" aria-label="New tags, separated by commas" style="width:min(100%,280px)">
+            <button class="btn" id="addTags">Add tags</button>
+            <button class="btn" id="writeCsv" hidden>Write tags into cards.csv</button>
+          </div>
+        </div>
+      </details>
+      <div class="cluster tabs" id="tabs" role="tablist" aria-label="Card list tabs"></div>
+      <div id="list"></div>
+    </details>
+  </section>
+
+  <!-- ===== GAME ===== -->
+  <section id="game" class="stack screen-game" hidden style="--gap:18px">
+    <div class="gamebar">
+      <button class="iconbtn" id="pauseBtn" aria-label="Pause"><svg viewBox="0 0 16 16"><path d="M5.5 3.5v9M10.5 3.5v9"/></svg></button>
+      <span class="badge" id="gMode"></span>
+      <span class="gprog" id="gProg"></span>
+      <span class="gspacer"></span>
+      <span class="badge" id="gStreak" hidden style="--c:var(--butter);border-radius:var(--r-pill)"></span>
+      <span class="hearts" id="gHearts"></span>
+      <div class="gscore"><b id="gScore">0</b><span id="gScoreLabel">score</span></div>
+      <div class="tbox" id="tBox" hidden>
+        <svg viewBox="0 0 46 46" aria-hidden="true"><circle class="track" cx="23" cy="23" r="19"/><circle class="prog" id="tRing" cx="23" cy="23" r="19"/></svg>
+        <span class="tt" id="tText"></span>
+      </div>
+    </div>
+    <div class="stack" id="stage" style="--gap:var(--s4)"></div>
+  </section>
+
+  <!-- ===== RESULTS ===== -->
+  <section id="results" class="stack screen-results" hidden style="--gap:var(--s5)"></section>
+</div>
+
+<!-- ===== DIALOGS ===== -->
+<div class="overlay" id="pause" hidden>
+  <div class="sheet stack">
+    <span class="tape tape--top" style="--c:var(--m3)"></span>
+    <h2>Paused</h2>
+    <p class="small">The clock is stopped. Press Esc to keep going.</p>
+    <div class="stack" style="--gap:var(--s2)">
+      <button class="btn btn--primary" id="resume">Resume</button>
+      <button class="btn" id="endNow">End now and see results</button>
+      <button class="btn" id="quit">Quit to menu</button>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="ask" hidden role="dialog" aria-modal="true" aria-labelledby="askTitle">
+  <div class="sheet stack">
+    <span class="tape tape--top" style="--c:var(--sakura)"></span>
+    <h2 id="askTitle"></h2>
+    <p class="small" id="askBody"></p>
+    <div class="stack" style="--gap:var(--s2)">
+      <button class="btn btn--primary" id="askYes"></button>
+      <button class="btn" id="askNo">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="cards-builtin.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
